@@ -1,0 +1,17 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.6.5">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AspireUseCliBundle>true</AspireUseCliBundle>
+    <UserSecretsId>d3e8aa31-e09d-4d06-be95-6efe3660d7bb</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ShopLite.ApiService\ShopLite.ApiService.csproj" />
+    <ProjectReference Include="..\ShopLite.Web\ShopLite.Web.csproj" />
+  </ItemGroup>
+
+</Project>
