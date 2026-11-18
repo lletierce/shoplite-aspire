@@ -14,4 +14,8 @@
     <ProjectReference Include="..\ShopLite.Web\ShopLite.Web.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="17.0.0" />
+  </ItemGroup>
+
 </Project>

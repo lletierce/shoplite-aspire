@@ -1,0 +1,15 @@
+# For more info on HTTP files go to https://aka.ms/vs/httpfile
+@api = http://localhost:5568
+
+GET {{api}}/api/products
+
+###
+
+POST {{api}}/api/products
+Content-Type: application/json
+
+{
+  "name": "Souris sans fil",
+  "price": 29.99,
+  "stock": 40
+}
