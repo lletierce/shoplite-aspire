@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-ShopLite.OrderWorker-baf504b3-53c8-4821-9316-8602b45e8abf</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.RabbitMQ.Client" Version="13.6.5" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="11.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ShopLite.ServiceDefaults\ShopLite.ServiceDefaults.csproj" />
+  </ItemGroup>
+</Project>

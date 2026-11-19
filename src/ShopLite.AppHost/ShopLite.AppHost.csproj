@@ -12,10 +12,12 @@
   <ItemGroup>
     <ProjectReference Include="..\ShopLite.ApiService\ShopLite.ApiService.csproj" />
     <ProjectReference Include="..\ShopLite.Web\ShopLite.Web.csproj" />
+    <ProjectReference Include="..\ShopLite.OrderWorker\ShopLite.OrderWorker.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="17.0.0" />
+    <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="17.0.0" />
     <PackageReference Include="Aspire.Hosting.Redis" Version="17.0.0" />
   </ItemGroup>
 

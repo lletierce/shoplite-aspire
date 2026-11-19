@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using ShopLite.ApiService.Data;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
+using RabbitMQ.Client;
+using ShopLite.ApiService.Orders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +15,9 @@ builder.AddNpgsqlDbContext<CatalogDbContext>("catalogdb");
 
 // Add Redis distributed cache for caching.
 builder.AddRedisDistributedCache("cache");
+
+// Add RabbitMQ client for messaging.
+builder.AddRabbitMQClient("messaging");
 
 // Add services to the container.
 builder.Services.AddProblemDetails();
@@ -89,10 +94,38 @@ products.MapPost("/", async (Product product, CatalogDbContext db, IDistributedC
 {
     db.Products.Add(product);
     await db.SaveChangesAsync();
-
-   await cache.RemoveAsync(ProductsCacheKey);   // le catalogue a changé : on vide le cache
+    
+    await cache.RemoveAsync(ProductsCacheKey);   // le catalogue a changé : on vide le cache
 
     return Results.Created($"/api/products/{product.Id}", product);
+});
+
+app.MapPost("/api/orders", async (PlaceOrderRequest request, CatalogDbContext db,
+                                  IConnection connection, CancellationToken ct) =>
+{
+    // 1. Validation : on refuse les commandes incohérentes avant de publier quoi que ce soit
+    if (request.Quantity <= 0)
+        return Results.BadRequest("La quantité doit être positive.");
+
+    if (!await db.Products.AnyAsync(p => p.Id == request.ProductId, ct))
+        return Results.NotFound($"Produit {request.ProductId} introuvable.");
+
+    // 2. Création du message
+    var order = new OrderPlaced(Guid.NewGuid(), request.ProductId, request.Quantity, DateTime.UtcNow);
+
+    // 3. Publication dans la file "orders"
+    await using var channel = await connection.CreateChannelAsync(cancellationToken: ct);
+    await channel.QueueDeclareAsync("orders", durable: true, exclusive: false,
+                                    autoDelete: false, cancellationToken: ct);
+
+    var body = JsonSerializer.SerializeToUtf8Bytes(order);
+    var properties = new BasicProperties { Persistent = true };
+
+    await channel.BasicPublishAsync(exchange: "", routingKey: "orders", mandatory: false,
+                                    basicProperties: properties, body: body, cancellationToken: ct);
+
+    // 4. Réponse immédiate : la commande est acceptée, pas encore traitée
+    return Results.Accepted($"/api/orders/{order.OrderId}", order);
 });
 
 app.MapDefaultEndpoints();

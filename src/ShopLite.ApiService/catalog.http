@@ -13,3 +13,13 @@ Content-Type: application/json
   "price": 29.99,
   "stock": 40
 }
+
+###
+
+POST {{api}}/api/orders
+Content-Type: application/json
+
+{
+  "productId": 1,
+  "quantity": 2
+}
