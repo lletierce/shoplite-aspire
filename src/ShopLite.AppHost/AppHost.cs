@@ -1,4 +1,5 @@
 var builder = DistributedApplication.CreateBuilder(args);
+var cache = builder.AddRedis("cache");
 
 // 1. Le serveur PostgreSQL (un conteneur Docker)
 var postgres = builder.AddPostgres("postgres")
@@ -8,10 +9,12 @@ var postgres = builder.AddPostgres("postgres")
 // 2. Une base de données sur ce serveur
 var catalogDb = postgres.AddDatabase("catalogdb");
 
-// 3. L'API reçoit la base et attend qu'elle soit prête
+// 3. L'API reçoit les services et attend qu'ils soient prêts
 var apiService = builder.AddProject<Projects.ShopLite_ApiService>("apiservice")
     .WithReference(catalogDb)
     .WaitFor(catalogDb)
+    .WithReference(cache)
+    .WaitFor(cache)
     .WithHttpHealthCheck("/health");
 
 builder.AddProject<Projects.ShopLite_Web>("webfrontend")
@@ -19,5 +22,7 @@ builder.AddProject<Projects.ShopLite_Web>("webfrontend")
     .WithHttpHealthCheck("/health")
     .WithReference(apiService)
     .WaitFor(apiService);
+
+
 
 builder.Build().Run();

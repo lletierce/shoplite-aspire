@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ShopLite.ApiService.Data;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +10,9 @@ builder.AddServiceDefaults();
 
 // Add database context for catalogdb.
 builder.AddNpgsqlDbContext<CatalogDbContext>("catalogdb");
+
+// Add Redis distributed cache for caching.
+builder.AddRedisDistributedCache("cache");
 
 // Add services to the container.
 builder.Services.AddProblemDetails();
@@ -47,20 +52,46 @@ app.MapGet("/", () => "API service is running.");
 
 
 // Map product endpoints
+const string ProductsCacheKey = "catalog:products";
+
 var products = app.MapGroup("/api/products");
 
-products.MapGet("/", async (CatalogDbContext db) =>
-    await db.Products.AsNoTracking().ToListAsync());
+// Liste des produits, avec cache Redis
+products.MapGet("/", async (CatalogDbContext db, IDistributedCache cache, CancellationToken ct) =>
+{
+    // 1. Le cache contient-il déjà la liste ?
+    var cached = await cache.GetStringAsync(ProductsCacheKey, ct);
+    if (cached is not null)
+    {
+        return Results.Content(cached, "application/json");
+    }
 
+    // 2. Sinon : lecture en base, puis mise en cache pendant 5 minutes
+    var list = await db.Products.AsNoTracking().ToListAsync(ct);
+    var json = JsonSerializer.Serialize(list, JsonSerializerOptions.Web);
+
+    await cache.SetStringAsync(ProductsCacheKey, json, new DistributedCacheEntryOptions
+    {
+        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5)
+    }, ct);
+
+    return Results.Content(json, "application/json");
+});
+
+// Un produit par son id
 products.MapGet("/{id:int}", async (int id, CatalogDbContext db) =>
     await db.Products.FindAsync(id) is { } product
         ? Results.Ok(product)
         : Results.NotFound());
 
-products.MapPost("/", async (Product product, CatalogDbContext db) =>
+// Création d'un produit, puis invalidation du cache
+products.MapPost("/", async (Product product, CatalogDbContext db, IDistributedCache cache) =>
 {
     db.Products.Add(product);
     await db.SaveChangesAsync();
+
+   await cache.RemoveAsync(ProductsCacheKey);   // le catalogue a changé : on vide le cache
+
     return Results.Created($"/api/products/{product.Id}", product);
 });
 
