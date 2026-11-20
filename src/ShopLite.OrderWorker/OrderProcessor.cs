@@ -1,12 +1,20 @@
 ﻿using System.Text.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
 
 namespace ShopLite.OrderWorker;
 
 public class OrderProcessor(IConnection connection, ILogger<OrderProcessor> logger) : BackgroundService
 {
     private const string QueueName = "orders";
+
+    // Source de traces et de métriques propres à notre métier
+    private static readonly ActivitySource ActivitySource = new("ShopLite.Orders");
+    private static readonly Meter Meter = new("ShopLite.Orders");
+    private static readonly Counter<long> OrdersProcessed =
+        Meter.CreateCounter<long>("shoplite.orders.processed", description: "Nombre de commandes traitées");
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -22,14 +30,19 @@ public class OrderProcessor(IConnection connection, ILogger<OrderProcessor> logg
         consumer.ReceivedAsync += async (_, ea) =>
         {
             var order = JsonSerializer.Deserialize<OrderPlaced>(ea.Body.Span)!;
+
+            using var activity = ActivitySource.StartActivity("Traitement commande");
+            activity?.SetTag("order.id", order.OrderId);
+            activity?.SetTag("order.quantity", order.Quantity);
+
             logger.LogInformation("Traitement de la commande {OrderId} : {Quantity} x produit {ProductId}",
                                   order.OrderId, order.Quantity, order.ProductId);
 
-            // Simule un traitement long : paiement, email de confirmation...
             await Task.Delay(TimeSpan.FromSeconds(3), stoppingToken);
 
-            // Confirmation à RabbitMQ : le message peut être supprimé de la file
             await channel.BasicAckAsync(ea.DeliveryTag, multiple: false, cancellationToken: stoppingToken);
+
+            OrdersProcessed.Add(1);
             logger.LogInformation("Commande {OrderId} traitée", order.OrderId);
         };
 
