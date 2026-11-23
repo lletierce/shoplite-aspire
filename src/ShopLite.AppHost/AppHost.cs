@@ -1,10 +1,17 @@
+using Microsoft.Extensions.Configuration;
+
 var builder = DistributedApplication.CreateBuilder(args);
 var cache = builder.AddRedis("cache");
 
 // Le serveur PostgreSQL (un conteneur Docker)
 var postgres = builder.AddPostgres("postgres")
-    .WithDataVolume()   // les données survivent aux redémarrages
     .WithPgAdmin();     // interface web pour explorer la base
+
+// Volume activé par défaut (développement), désactivable (tests)
+if (builder.Configuration.GetValue("ShopLite:UseDataVolume", true))
+{
+    postgres.WithDataVolume();
+}
 
 // Une base de données sur ce serveur
 var catalogDb = postgres.AddDatabase("catalogdb");

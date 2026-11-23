@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShopLite.Web", "ShopLite.We
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopLite.OrderWorker", "ShopLite.OrderWorker\ShopLite.OrderWorker.csproj", "{223FCDC4-A8F7-421F-9CC4-E62BF6FEEB59}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShopLite.Tests", "ShopLite.Tests\ShopLite.Tests.csproj", "{EB30FA98-95B8-4613-AAF7-518610D7E9C3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,18 @@ Global
 		{223FCDC4-A8F7-421F-9CC4-E62BF6FEEB59}.Release|x64.Build.0 = Release|Any CPU
 		{223FCDC4-A8F7-421F-9CC4-E62BF6FEEB59}.Release|x86.ActiveCfg = Release|Any CPU
 		{223FCDC4-A8F7-421F-9CC4-E62BF6FEEB59}.Release|x86.Build.0 = Release|Any CPU
+		{EB30FA98-95B8-4613-AAF7-518610D7E9C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB30FA98-95B8-4613-AAF7-518610D7E9C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB30FA98-95B8-4613-AAF7-518610D7E9C3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EB30FA98-95B8-4613-AAF7-518610D7E9C3}.Debug|x64.Build.0 = Debug|Any CPU
+		{EB30FA98-95B8-4613-AAF7-518610D7E9C3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EB30FA98-95B8-4613-AAF7-518610D7E9C3}.Debug|x86.Build.0 = Debug|Any CPU
+		{EB30FA98-95B8-4613-AAF7-518610D7E9C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB30FA98-95B8-4613-AAF7-518610D7E9C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EB30FA98-95B8-4613-AAF7-518610D7E9C3}.Release|x64.ActiveCfg = Release|Any CPU
+		{EB30FA98-95B8-4613-AAF7-518610D7E9C3}.Release|x64.Build.0 = Release|Any CPU
+		{EB30FA98-95B8-4613-AAF7-518610D7E9C3}.Release|x86.ActiveCfg = Release|Any CPU
+		{EB30FA98-95B8-4613-AAF7-518610D7E9C3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
