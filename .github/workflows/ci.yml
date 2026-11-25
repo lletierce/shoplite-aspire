@@ -12,6 +12,10 @@ jobs:
     # Une machine Linux neuve, fournie par GitHub (Docker y est déjà installé)
     runs-on: ubuntu-latest
 
+    # Indique à OpenSSL où trouver le certificat de développement pour une machine linux
+    env:
+      SSL_CERT_DIR: /home/runner/.aspnet/dev-certs/trust:/usr/lib/ssl/certs
+
     steps:
       - name: Récupérer le code
         uses: actions/checkout@v4
