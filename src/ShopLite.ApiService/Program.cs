@@ -95,7 +95,7 @@ products.MapPost("/", async (Product product, CatalogDbContext db, IDistributedC
     db.Products.Add(product);
     await db.SaveChangesAsync();
     
-    await cache.RemoveAsync(ProductsCacheKey);   // le catalogue a changé : on vide le cache
+    // await cache.RemoveAsync(ProductsCacheKey);    le catalogue a changé : on vide le cache
 
     return Results.Created($"/api/products/{product.Id}", product);
 });
